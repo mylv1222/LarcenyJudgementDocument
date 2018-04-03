@@ -165,7 +165,7 @@ def extractInformation(text): #抽取信息的函数
         
         print('################')
         print("【时间】：                       ",time) 
-        datetime.append(time)  
+        datetime.append(time)  #datetime存储时间
         
         cp=names.copy()
         for name in cp:
@@ -230,7 +230,7 @@ import sys
 debug=0
 old=sys.stdout
 if debug!=1:
-    f=open("8.txt","r",encoding='utf8')
+    f=open("0.txt","r",encoding='utf8')
 else:
     f=open("tmp.txt","r",encoding='utf8')
 outf=open("out.txt","w",encoding="utf8")

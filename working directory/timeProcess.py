@@ -8,7 +8,7 @@ Created on Tue Mar 27 12:30:10 2018
 import re
 
 f=open('datetime.txt','r',encoding='utf8')
-outf=open('time_structured','w',encoding='utf8')
+outf=open('time_structured.txt','w',encoding='utf8')
 times=f.readlines()
 f.close()
 

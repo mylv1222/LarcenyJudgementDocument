@@ -1,1 +1,4 @@
 *out*.txt
+time_structured.txt
+[0-9]*.txt
+datetime.txt
