@@ -33,8 +33,8 @@ def extractInformation(text): #抽取信息的函数
             continue
         
         time=re.search(r'[\d同]+年[\d同]+月\w*?\b',line)
-        if time==None:
-            time=re.search(r'[\d同]+年\w*\b',line)
+        #if time==None:
+            #time=re.search(r'[\d同]+年\w*\b',line)
         if time==None:
             continue
         time=time.group(0)
