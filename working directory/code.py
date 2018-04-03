@@ -7,6 +7,7 @@ Created on Tue Mar 20 18:00:44 2018
 
 debug=1 #debug模式
 nn=[] #从头部信息抽取出来的被告人姓名列表
+datetime=[]
 
 def printList(List): #打印列表的函数
     tt=0
@@ -31,12 +32,13 @@ def extractInformation(text): #抽取信息的函数
         if line.find("陈述")!=-1 or line.find("供述")!=-1 or line.find("证实")!=-1 or line.find("证据")!=-1:
             continue
         
-        time=re.search(r'\d*年\d*月\w*?\b',line)
+        time=re.search(r'[\d同]+年[\d同]+月\w*?\b',line)
         if time==None:
-            time=re.search(r'\d*年\w*\b',line)
+            time=re.search(r'[\d同]+年\w*\b',line)
         if time==None:
             continue
         time=time.group(0)
+        
         if len(re.findall(r'月',time))>1 or len(re.findall(r'日',time))>1:
             continue
         if exist_time.intersection(set([time]))!=set():
@@ -163,7 +165,8 @@ def extractInformation(text): #抽取信息的函数
         
         print('################')
         print("【时间】：                       ",time) 
-                
+        datetime.append(time)  
+        
         cp=names.copy()
         for name in cp:
             if len(name)>=10:
@@ -227,7 +230,7 @@ import sys
 debug=0
 old=sys.stdout
 if debug!=1:
-    f=open("dataset.txt","r",encoding='utf8')
+    f=open("8.txt","r",encoding='utf8')
 else:
     f=open("tmp.txt","r",encoding='utf8')
 outf=open("out.txt","w",encoding="utf8")
@@ -350,6 +353,12 @@ for file in files:
 print("\n文书总数：",file_count)
 print("\n未识别裁判文书数: ",error_count)
 print("\n提取失败文书数：",not_count)
+
+df=open('datetime.txt','w',encoding='utf8')
+for dt in datetime:
+    df.write(dt)
+    df.write('\n')
+df.close()
 
 sys.stdout=old
 outf.close()
