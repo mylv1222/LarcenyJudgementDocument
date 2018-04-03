@@ -15,7 +15,7 @@ echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 echo;
 echo git push start
-git push https://git.coding.net/milesgu/LarcenyJudgementDocument
+git push git@github.com:milesgu/LarcenyJudgementDocument
 echo git push done
 echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
