@@ -7,7 +7,8 @@ Created on Tue Mar 20 18:00:44 2018
 
 debug=1 #debug模式
 nn=[] #从头部信息抽取出来的被告人姓名列表
-datetime=[]
+#datetime=[]
+ths=[]
 
 def printList(List): #打印列表的函数
     for item in List:
@@ -32,7 +33,8 @@ def extractInformation(text): #抽取信息的函数
             continue
         
         #time=re.search(r'[\d同]+年[\d同]+月\w*?\b',line)
-        time=re.search(r'(?P<year>[0-9]{4,4}|同|当)年(?P<imprecise_month>[末底终初中])?(?:(?P<season>[春夏秋冬])[天季])?(?P<month>[0-9]{1,2}|同|当)月份?(?P<mo>左右)?(?P<imprecise_day>(?P<id1>上旬|中旬|下旬|[末底终初中])?(?P<id2>的一天|一天)?)?(?:(?P<day>(?:[0-9]{1,2}|同|当|某))[日号](?P<d1>左右|前后)?(?P<d2>的?一天)?)?(?P<imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<h>左右|前后|许)?)?(?:(?P<minute>[0-9]{1,2}|某)分(?P<mi>左右|前后|许)?)?(?:(?P<second>[0-9]{1,2}|某)秒(?P<s>左右|前后|许)?)?\b',line)
+        #time=re.search(r'(?P<year>[0-9]{4,4}|同|当)年(?P<imprecise_month>[末底终初中])?(?:(?P<season>[春夏秋冬])[天季])?(?P<month>[0-9]{1,2}|同|当)月份?(?P<mo>左右)?(?P<imprecise_day>(?P<id1>上旬|中旬|下旬|[末底终初中])?(?P<id2>的一天|一天)?)?(?:(?P<day>(?:[0-9]{1,2}|同|当|某))[日号](?P<d1>左右|前后)?(?P<d2>的?一天)?)?(?P<imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<h>左右|前后|许)?)?(?:(?P<minute>[0-9]{1,2}|某)分(?P<mi>左右|前后|许)?)?(?:(?P<second>[0-9]{1,2}|某)秒(?P<s>左右|前后|许)?)?\b',line)
+        time=re.search(r'(?P<Year>[0-9]{4,4}|同|当)年(?P<Imprecise_month>[末底终初中])?(?:(?P<Season>[春夏秋冬])[天季])?(?P<Month>[0-9]{1,2}|同|当)月份?(?P<Mo>左右)?(?P<Imprecise_day>(?P<Id1>上旬|中旬|下旬|[末底终初中])?(?P<Id2>的一天|一天)?)?(?:(?P<Day>(?:[0-9]{1,2}|同|当|某))[日号](?P<D1>左右|前后)?(?P<D2>的?一天)?)?(?P<Imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<Hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<H>左右|前后|许)?)?(?:(?P<Minute>[0-9]{1,2}|某)分(?P<Mi>左右|前后|许)?)?(?:(?P<Second>[0-9]{1,2}|某)秒(?P<S>左右|前后|许)?)?\b',line);
         #if time==None:
             #time=re.search(r'[\d同]+年\w*\b',line)
         if time==None:
@@ -164,18 +166,18 @@ def extractInformation(text): #抽取信息的函数
             continue
         
         print('################')
-        print("Time:")
+        print("Time")
         [preYear,preMonth,preDay]=timeProcess.structTime(time,preYear,preMonth,preDay)
-        datetime.append(time)  #datetime存储时间
+        #datetime.append(time)  #datetime存储时间
         
         cp=names.copy()
         for name in cp:
             if len(name)>=10:
                 names.remove(name)
-        print("Criminal:",end="")
+        print("Criminal",end="")
         printList(names)
         
-        print("Location:\n\t",end="")
+        print("Location\n\t",end="")
         locations=locations.group(1)
         ptr=locations.find("至")
         if ptr==-1:
@@ -207,8 +209,10 @@ def extractInformation(text): #抽取信息的函数
                     break
         
         
-        print("Items:",end="")
+        print("Items",end="")
         printList(things)
+        ths.extend(things)
+        ths.append("");
         
         cp=money.copy()
         for mm in cp:
@@ -220,7 +224,7 @@ def extractInformation(text): #抽取信息的函数
             if ptr==-1:
                 money.remove(mm)
         
-        print("Value:",end="")
+        print("Value",end="")
         printList(money)
         
         flag=1
@@ -357,10 +361,17 @@ if __name__=='__main__':
     print("\n未识别裁判文书数: ",error_count)
     print("\n提取失败文书数：",not_count)
     
+    '''
     df=open('datetime.txt','w',encoding='utf8')
     for dt in datetime:
         df.write(dt)
         df.write('\n')
+    df.close()
+    '''
+    
+    df=open('ths.txt','w',encoding='utf8')
+    for th in ths:
+        df.write(th+'\n')
     df.close()
     
     sys.stdout=old

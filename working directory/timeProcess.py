@@ -20,7 +20,7 @@ def extractTime(matcher,name):
     info=matcher.group(name)
     if(info!=None and info!=''):
         print('\t'+name+'\n\t\t',end='')
-        if name=='year':
+        if name=='Year':
             if(re.match(r'[同当]',info)):
                 if(pYear!=''):
                     cYear=pYear
@@ -31,12 +31,12 @@ def extractTime(matcher,name):
             print(' '+info,end='')
             cYear=info
             print(' -年',end='')
-        if name=='imprecise_month':
+        if name=='Imprecise_month':
             print(' -年',end='')
             print(' '+info,end='')
-        if name=='season':
+        if name=='Season':
             print(' '+info+'季',end='')
-        if name=='month':
+        if name=='Month':
             if(re.match(r'[同当]',info)):
                 if(pMonth!=''):
                     cMonth=pMonth
@@ -47,23 +47,23 @@ def extractTime(matcher,name):
             print(' '+info,end='')
             cMonth=info
             print(' -月',end='')
-            info=matcher.group('mo')
+            info=matcher.group('Mo')
             if info!=None:
                 print(' -'+info,end='')
-        if name=='imprecise_day':
-            info=matcher.group('id1')
+        if name=='Imprecise_day':
+            info=matcher.group('Id1')
             if info!=None:
                 if len(info)==1:
                     print(' -月'+info,end='')
                 else:
                     print(' -'+info,end='')
-            info=matcher.group('id2')
+            info=matcher.group('Id2')
             if info!=None:
                 if len(info)==2:
                     print(' -的'+info,end='')
                 else:
                     print(' -'+info,end='')
-        if name=='day':
+        if name=='Day':
             if(re.match(r'[同当]',info)):
                 if(pDay!=''):
                     cDay=pDay
@@ -74,30 +74,30 @@ def extractTime(matcher,name):
             print(' '+info,end='')
             cDay=info
             print(' -日',end='')
-            info=matcher.group('d1')
+            info=matcher.group('D1')
             if info!=None:
                 print(' -'+info,end='')
-            info=matcher.group('d2')
+            info=matcher.group('D2')
             if info!=None:
                 if len(info)==2:
                     print(' -的'+info,end='')
                 else:
                     print(' -'+info,end='')
-        if name=='imprecise_hour':
+        if name=='Imprecise_hour':
             print(' -'+info,end='')
-        if name=='hour':
+        if name=='Hour':
             print(' '+info+' -时',end='')
-            info=matcher.group('h')
+            info=matcher.group('H')
             if info!=None:
                 print(' -'+info,end='')
-        if name=='minute':
+        if name=='Minute':
             print(' '+info+' -分',end='')
-            info=matcher.group('mi')
+            info=matcher.group('Mi')
             if info!=None:
                 print(' -'+info,end='')
-        if name=='second':
+        if name=='Second':
             print(' '+info+' -秒',end='')
-            info=matcher.group('s')
+            info=matcher.group('S')
             if info!=None:
                 print(' -'+info,end='')
                 
@@ -108,17 +108,18 @@ def structTime(time,_preYear,_preMonth,_preDay):
     pYear=_preYear
     pMonth=_preMonth
     pDay=_preDay
-    tmp=re.match(r'(?P<year>[0-9]{4,4}|同|当)年(?P<imprecise_month>[末底终初中])?(?:(?P<season>[春夏秋冬])[天季])?(?P<month>[0-9]{1,2}|同|当)月份?(?P<mo>左右)?(?P<imprecise_day>(?P<id1>上旬|中旬|下旬|[末底终初中])?(?P<id2>的一天|一天)?)?(?:(?P<day>(?:[0-9]{1,2}|同|当|某))[日号](?P<d1>左右|前后)?(?P<d2>的?一天)?)?(?P<imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<h>左右|前后|许)?)?(?:(?P<minute>[0-9]{1,2}|某)分(?P<mi>左右|前后|许)?)?(?:(?P<second>[0-9]{1,2}|某)秒(?P<s>左右|前后|许)?)?',time);
-    print('\tcomplete\n\t\t',end='')
+    #tmp=re.match(r'(?P<year>[0-9]{4,4}|同|当)年(?P<imprecise_month>[末底终初中])?(?:(?P<season>[春夏秋冬])[天季])?(?P<month>[0-9]{1,2}|同|当)月份?(?P<mo>左右)?(?P<imprecise_day>(?P<id1>上旬|中旬|下旬|[末底终初中])?(?P<id2>的一天|一天)?)?(?:(?P<day>(?:[0-9]{1,2}|同|当|某))[日号](?P<d1>左右|前后)?(?P<d2>的?一天)?)?(?P<imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<h>左右|前后|许)?)?(?:(?P<minute>[0-9]{1,2}|某)分(?P<mi>左右|前后|许)?)?(?:(?P<second>[0-9]{1,2}|某)秒(?P<s>左右|前后|许)?)?',time);
+    tmp=re.match(r'(?P<Year>[0-9]{4,4}|同|当)年(?P<Imprecise_month>[末底终初中])?(?:(?P<Season>[春夏秋冬])[天季])?(?P<Month>[0-9]{1,2}|同|当)月份?(?P<Mo>左右)?(?P<Imprecise_day>(?P<Id1>上旬|中旬|下旬|[末底终初中])?(?P<Id2>的一天|一天)?)?(?:(?P<Day>(?:[0-9]{1,2}|同|当|某))[日号](?P<D1>左右|前后)?(?P<D2>的?一天)?)?(?P<Imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<Hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<H>左右|前后|许)?)?(?:(?P<Minute>[0-9]{1,2}|某)分(?P<Mi>左右|前后|许)?)?(?:(?P<Second>[0-9]{1,2}|某)秒(?P<S>左右|前后|许)?)?',time);
+    print('\tComplete\n\t\t',end='')
     print(tmp.group(0)+'\n',end='')
-    extractTime(tmp,'year')
-    extractTime(tmp,'imprecise_month')
-    extractTime(tmp,'season')
-    extractTime(tmp,'month')
-    extractTime(tmp,'imprecise_day')
-    extractTime(tmp,'day')
-    extractTime(tmp,'imprecise_hour')
-    extractTime(tmp,'hour')
-    extractTime(tmp,'minute')
-    extractTime(tmp,'second')
+    extractTime(tmp,'Year')
+    extractTime(tmp,'Imprecise_month')
+    extractTime(tmp,'Season')
+    extractTime(tmp,'Month')
+    extractTime(tmp,'Imprecise_day')
+    extractTime(tmp,'Day')
+    extractTime(tmp,'Imprecise_hour')
+    extractTime(tmp,'Hour')
+    extractTime(tmp,'Minute')
+    extractTime(tmp,'Second')
     return [cYear,cMonth,cDay]
