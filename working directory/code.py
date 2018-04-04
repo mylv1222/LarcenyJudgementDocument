@@ -211,7 +211,9 @@ def extractInformation(text): #抽取信息的函数
         
         print("Items",end="")
         printList(things)
-        ths.extend(things)
+        for th in things:
+            ths.append(th)
+            ths.extend(re.split(r'[及和与、，,]',th))
         ths.append("");
         
         cp=money.copy()
