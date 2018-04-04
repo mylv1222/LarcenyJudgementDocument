@@ -13,7 +13,7 @@ def printList(List): #打印列表的函数
     tt=0
     for item in List:
         if tt==1:
-            print(',',end='')
+            print('，',end='')
         tt=1
         print(item,end='')
     print('')
@@ -23,6 +23,9 @@ def extractInformation(text): #抽取信息的函数
     flag=-1
     lines=text.split('\n')
     exist_time=set()
+    preYear=''
+    preMonth=''
+    preDay=''
     for line in lines:
         time=None
         names=None
@@ -32,7 +35,8 @@ def extractInformation(text): #抽取信息的函数
         if line.find("陈述")!=-1 or line.find("供述")!=-1 or line.find("证实")!=-1 or line.find("证据")!=-1:
             continue
         
-        time=re.search(r'[\d同]+年[\d同]+月\w*?\b',line)
+        #time=re.search(r'[\d同]+年[\d同]+月\w*?\b',line)
+        time=re.search(r'(?P<year>[0-9]{4,4}|同|当)年(?P<imprecise_month>[末底终初中])?(?:(?P<season>[春夏秋冬])[天季])?(?P<month>[0-9]{1,2}|同|当)月份?(?P<mo>左右)?(?P<imprecise_day>(?P<id1>上旬|中旬|下旬|[末底终初中])?(?P<id2>的一天|一天)?)?(?:(?P<day>(?:[0-9]{1,2}|同|当|某))[日号](?P<d1>左右|前后)?(?P<d2>的?一天)?)?(?P<imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<h>左右|前后|许)?)?(?:(?P<minute>[0-9]{1,2}|某)分(?P<mi>左右|前后|许)?)?(?:(?P<second>[0-9]{1,2}|某)秒(?P<s>左右|前后|许)?)?\b',line)
         #if time==None:
             #time=re.search(r'[\d同]+年\w*\b',line)
         if time==None:
@@ -40,9 +44,9 @@ def extractInformation(text): #抽取信息的函数
         time=time.group(0)
         
         if len(re.findall(r'月',time))>1 or len(re.findall(r'日',time))>1:
-            continue
+            continue 
         if exist_time.intersection(set([time]))!=set():
-            continue
+            continue #如果已包含该事件
         ptr=time.find("被告人")
         if ptr!=-1:
             time=time[0:ptr]
@@ -164,7 +168,8 @@ def extractInformation(text): #抽取信息的函数
             continue
         
         print('################')
-        print("【时间】：                       ",time) 
+        print("【时间】：                       ")
+        [preYear,preMonth,preDay]=timeProcess.structTime(time,preYear,preMonth,preDay)
         datetime.append(time)  #datetime存储时间
         
         cp=names.copy()
@@ -225,140 +230,142 @@ def extractInformation(text): #抽取信息的函数
         flag=1
     return flag
 
-import re
-import sys
-debug=0
-old=sys.stdout
-if debug!=1:
-    f=open("0.txt","r",encoding='utf8')
-else:
-    f=open("tmp.txt","r",encoding='utf8')
-outf=open("out.txt","w",encoding="utf8")
-sys.stdout=outf
-files=f.read()
-f.close()
-files=re.split(r'(?<=\n)\*{5}(?!\*)',files);#分割不同的文书
-n=len(files)
-
-i=0
-file_count=0
-error_count=0
-not_count=0
-for file in files:
-    if re.match(r'^[\s]*$',file):
-        continue#如果整篇文章是空的
-    file_count=file_count+1
-    i=i+1#不同判决书之间的分割线
-    
-    info=re.findall('被告人?\S*\n',file);
-    if len(info)==0:
-        error_count=error_count+1
-        continue
-    
-    p1=file.find(info[0])
-    s1=file[0:p1]
-    s2=file[p1:len(file)]
-    
-    info=re.findall('(?<=[\n])[\S]*?检\S{1,15}?诉\S*\n',s2);
-    if len(info)!=0:
-        p2=s2.find(info[0])+len(info[0])
-        s3=s2[p2:len(s2)]
-        s2=s2[0:p2]
+if __name__=='__main__':
+    import re
+    import sys
+    import timeProcess
+    debug=0
+    old=sys.stdout
+    if debug!=1:
+        f=open("0.txt","r",encoding='utf8')
     else:
-        info=re.findall('(?<=\n)\S*?指控\S*\n',s2)
+        f=open("tmp.txt","r",encoding='utf8')
+    outf=open("out.txt","w",encoding="utf8")
+    sys.stdout=outf
+    files=f.read()
+    f.close()
+    files=re.split(r'(?<=\n)\*{5}(?!\*)',files);#分割不同的文书
+    n=len(files)
+    
+    i=0
+    file_count=0
+    error_count=0
+    not_count=0
+    for file in files:
+        if re.match(r'^[\s]*$',file):
+            continue#如果整篇文章是空的
+        file_count=file_count+1
+        i=i+1#不同判决书之间的分割线
+        
+        info=re.findall('被告人?\S*\n',file);
         if len(info)==0:
             error_count=error_count+1
             continue
-        p2=s2.find(info[0])
-        s3=s2[p2:len(s2)]
-        s2=s2[0:p2]
-    
-    info=re.findall(r'(?<=\n)\S*查明\.*',s3)
-    if len(info)==0:
-        info=re.findall(r'(?<=\n)\S*证据\S*\n',s3)
-    if len(info)==0:
-        info=re.findall(r'(?<=\n)\S*认定\S*\n',s3)
-    if len(info)==0:
-        info=re.findall(r'(?<=\n)\S*证实\S*\n',s3)
-    if len(info)==0:
-        error_count=error_count+1
-        continue
-    p3=s3.find(info[0])
-    s4=s3[p3:len(s3)]
-    s3=s3[0:p3]
-    
-    info=re.findall(r'(?<=\n)\S*判决如下\S*\n',s4)
-    if len(info)==0:
-        error_count=error_count+1
-        continue
-    p4=s4.find(info[0])
-    s5=s4[p4:len(s4)]
-    s4=s4[0:p4]
-    
-    info=re.findall(r'[正副]本\S{0,20}\n',s5);
-    if len(info)==0:
-        error_count=error_count+1
-        continue
-    p5=s5.find(info[0])+len(info[0])
-    s6=s5[p5:len(s5)]
-    s5=s5[0:p5]    
-  
-    print(s1)
-    
-    #从s2中抽取出被告人姓名
-    nn=[]
-    lines=s2.split('\n')
-    for line in lines:
-        info=re.match('被告人(\w{2,5})[（）\(\),，\.。]',line)
-        if info:
-            nn.append(info.group(1))
-    
-    rec3=0
-    rec4=0
-    flag=-1
-    pt=s3.find('审理查明')
-    if pt!=-1:
-        rec3=1
-        flag=extractInformation(s3)
-        if flag==1:
-            print('**********************')
+        
+        p1=file.find(info[0])
+        s1=file[0:p1]
+        s2=file[p1:len(file)]
+        
+        info=re.findall('(?<=[\n])[\S]*?检\S{1,15}?诉\S*\n',s2);
+        if len(info)!=0:
+            p2=s2.find(info[0])+len(info[0])
+            s3=s2[p2:len(s2)]
+            s2=s2[0:p2]
+        else:
+            info=re.findall('(?<=\n)\S*?指控\S*\n',s2)
+            if len(info)==0:
+                error_count=error_count+1
+                continue
+            p2=s2.find(info[0])
+            s3=s2[p2:len(s2)]
+            s2=s2[0:p2]
+        
+        info=re.findall(r'(?<=\n)\S*查明\.*',s3)
+        if len(info)==0:
+            info=re.findall(r'(?<=\n)\S*证据\S*\n',s3)
+        if len(info)==0:
+            info=re.findall(r'(?<=\n)\S*认定\S*\n',s3)
+        if len(info)==0:
+            info=re.findall(r'(?<=\n)\S*证实\S*\n',s3)
+        if len(info)==0:
+            error_count=error_count+1
             continue
-    pt=s4.find('审理查明')
-    if pt!=-1:
-        rec4=1
-        flag=extractInformation(s4)
-        if flag==1:
-            print('**********************')
+        p3=s3.find(info[0])
+        s4=s3[p3:len(s3)]
+        s3=s3[0:p3]
+        
+        info=re.findall(r'(?<=\n)\S*判决如下\S*\n',s4)
+        if len(info)==0:
+            error_count=error_count+1
             continue
-    pt=s3.find('指控')
-    if pt!=-1:
-        rec3=1
-        flag=extractInformation(s3)
-        if flag==1:
-            print('**********************')
+        p4=s4.find(info[0])
+        s5=s4[p4:len(s4)]
+        s4=s4[0:p4]
+        
+        info=re.findall(r'[正副]本\S{0,20}\n',s5);
+        if len(info)==0:
+            error_count=error_count+1
             continue
-    if rec3==0:
-        flag=extractInformation(s3)
-        if flag==1:
-            print('**********************')
-            continue
-    if rec4==0:
-        flag=extractInformation(s4)
-        if flag==1:
-            print('**********************')
-            continue
-    not_count=not_count+1
-
-
-print("\n文书总数：",file_count)
-print("\n未识别裁判文书数: ",error_count)
-print("\n提取失败文书数：",not_count)
-
-df=open('datetime.txt','w',encoding='utf8')
-for dt in datetime:
-    df.write(dt)
-    df.write('\n')
-df.close()
-
-sys.stdout=old
-outf.close()
+        p5=s5.find(info[0])+len(info[0])
+        s6=s5[p5:len(s5)]
+        s5=s5[0:p5]    
+      
+        print(s1)
+        
+        #从s2中抽取出被告人姓名
+        nn=[]
+        lines=s2.split('\n')
+        for line in lines:
+            info=re.match('被告人(\w{2,5})[（）\(\),，\.。]',line)
+            if info:
+                nn.append(info.group(1))
+        
+        rec3=0
+        rec4=0
+        flag=-1
+        pt=s3.find('审理查明')
+        if pt!=-1:
+            rec3=1
+            flag=extractInformation(s3)
+            if flag==1:
+                print('**********************')
+                continue
+        pt=s4.find('审理查明')
+        if pt!=-1:
+            rec4=1
+            flag=extractInformation(s4)
+            if flag==1:
+                print('**********************')
+                continue
+        pt=s3.find('指控')
+        if pt!=-1:
+            rec3=1
+            flag=extractInformation(s3)
+            if flag==1:
+                print('**********************')
+                continue
+        if rec3==0:
+            flag=extractInformation(s3)
+            if flag==1:
+                print('**********************')
+                continue
+        if rec4==0:
+            flag=extractInformation(s4)
+            if flag==1:
+                print('**********************')
+                continue
+        not_count=not_count+1
+    
+    
+    print("\n文书总数：",file_count)
+    print("\n未识别裁判文书数: ",error_count)
+    print("\n提取失败文书数：",not_count)
+    
+    df=open('datetime.txt','w',encoding='utf8')
+    for dt in datetime:
+        df.write(dt)
+        df.write('\n')
+    df.close()
+    
+    sys.stdout=old
+    outf.close()
