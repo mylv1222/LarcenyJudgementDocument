@@ -19,7 +19,7 @@ def extractTime(matcher,name):
     global pYear,pMonth,pDay
     info=matcher.group(name)
     if(info!=None and info!=''):
-        print(name+'\n\t',end='')
+        print('\t'+name+'\n\t\t',end='')
         if name=='year':
             if(re.match(r'[同当]',info)):
                 if(pYear!=''):
@@ -109,7 +109,7 @@ def structTime(time,_preYear,_preMonth,_preDay):
     pMonth=_preMonth
     pDay=_preDay
     tmp=re.match(r'(?P<year>[0-9]{4,4}|同|当)年(?P<imprecise_month>[末底终初中])?(?:(?P<season>[春夏秋冬])[天季])?(?P<month>[0-9]{1,2}|同|当)月份?(?P<mo>左右)?(?P<imprecise_day>(?P<id1>上旬|中旬|下旬|[末底终初中])?(?P<id2>的一天|一天)?)?(?:(?P<day>(?:[0-9]{1,2}|同|当|某))[日号](?P<d1>左右|前后)?(?P<d2>的?一天)?)?(?P<imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<h>左右|前后|许)?)?(?:(?P<minute>[0-9]{1,2}|某)分(?P<mi>左右|前后|许)?)?(?:(?P<second>[0-9]{1,2}|某)秒(?P<s>左右|前后|许)?)?',time);
-    print('complete\n\t',end='')
+    print('\tcomplete\n\t\t',end='')
     print(tmp.group(0)+'\n',end='')
     extractTime(tmp,'year')
     extractTime(tmp,'imprecise_month')

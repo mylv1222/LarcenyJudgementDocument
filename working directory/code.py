@@ -10,12 +10,8 @@ nn=[] #从头部信息抽取出来的被告人姓名列表
 datetime=[]
 
 def printList(List): #打印列表的函数
-    tt=0
     for item in List:
-        if tt==1:
-            print('，',end='')
-        tt=1
-        print(item,end='')
+            print('\n\t'+item,end='')
     print('')
     
 
@@ -168,7 +164,7 @@ def extractInformation(text): #抽取信息的函数
             continue
         
         print('################')
-        print("【时间】：                       ")
+        print("Time:")
         [preYear,preMonth,preDay]=timeProcess.structTime(time,preYear,preMonth,preDay)
         datetime.append(time)  #datetime存储时间
         
@@ -176,10 +172,10 @@ def extractInformation(text): #抽取信息的函数
         for name in cp:
             if len(name)>=10:
                 names.remove(name)
-        print("【作案人】：                     ",end="")
+        print("Criminal:",end="")
         printList(names)
         
-        print("【地点】：                       ",end="")
+        print("Location:\n\t",end="")
         locations=locations.group(1)
         ptr=locations.find("至")
         if ptr==-1:
@@ -211,7 +207,7 @@ def extractInformation(text): #抽取信息的函数
                     break
         
         
-        print("【盗窃物品（价值）/现金】:      ",end="")
+        print("Items:",end="")
         printList(things)
         
         cp=money.copy()
@@ -224,7 +220,7 @@ def extractInformation(text): #抽取信息的函数
             if ptr==-1:
                 money.remove(mm)
         
-        print("【价值补充】:                   ",end="")
+        print("Value:",end="")
         printList(money)
         
         flag=1
