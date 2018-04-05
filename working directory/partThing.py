@@ -62,7 +62,7 @@ class item:
 
 def getValue(th):
     import re
-    tmp=re.search(r'(?:鉴定价格?|购买价|咨询价|进货价|售价|面值|面额|价值|折值|约值|总值|共值|估值|估价|价格|总价|总计|值)为?(?:人民币)?(?P<Value>[0-9,，零一二三四五六七八九十百千万]+元)',th)
+    tmp=re.search(r'(?:鉴定价格?|购买价|咨询价|进货价|售价|面值|面额|价值|折值|约值|总值|共值|估值|估价|价格|总价|总计|值)为?(?:人民币)?(?P<Value>[0-9,，\.零一二三四五六七八九十百千万零一二三四五六七八九十百千万壹贰叁肆伍陆柒捌玖拾佰仟亿]+[多余]?元)',th)
     if(tmp):
         return tmp.group('Value')
     return None
@@ -72,7 +72,7 @@ def delThing(things,names):
     import re
     cp=things.copy()
     for th in cp:
-        if(th==""):
+        if(len(th)<3):
             things.remove(th)
             continue
         if(re.search(r'被告人|销赃|作案|卖|次',th)):
@@ -88,3 +88,28 @@ def delThing(things,names):
             if(th.find(name)!=-1):
                 things.remove(th)
                 break
+            
+def getAttribute(vec):
+    import re
+    #color
+    color=None
+    tmp=re.search(r'(?=款|型号?|牌|[（）\(\)\"“”\'‘’、\-＊－·—\./]|\b)[\w（）\(\)\"“”\'‘’、\-＊－·—\./]+?色',vec[-1])
+    if(tmp!=None):
+        color=tmp.group(0)
+        vec[-1]=re.subn(r'%s'%color,'',vec[-1])[0]
+        
+    #brand
+    brand=None
+    if(re.search(r'[金银铜]牌',vec[-1])==None):
+        tmp=re.search(r'(?=款|型号?|[（）\(\)\"“”\'‘’、\-＊－·—\./]|\b)[\w（）\(\)\"“”\'‘’、\-＊－·—\./]+?牌',vec[-1])
+        if(tmp!=None):
+            brand=tmp.group(0)
+            vec[-1]=re.subn(r'%s'%brand,'',vec[-1])[0]
+    
+    #my_type
+    my_type=None
+    tmp=re.search(r'(?=[（）\(\)\"“”\'‘’、\-＊－·—\./]|\b)[\w（）\(\)\"“”\'‘’、\-＊－·—\./]+(?:款|型号?)',vec[-1])
+    if(tmp!=None):
+        my_type=tmp.group(0)
+        vec[-1]=re.subn(r'%s'%my_type,'',vec[-1])[0]
+    return [vec,color,brand,my_type]
