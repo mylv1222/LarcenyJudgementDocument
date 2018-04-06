@@ -43,6 +43,9 @@ def partThing(st):
                         continue
                     else:
                         break
+                if(i<n-1 and st[i]=='及' and st[i+1]=='其'):
+                    i+=1
+                    continue
                 if(i>0):
                     res.append(st[0:i])
                 if(i+1<n):
@@ -113,3 +116,150 @@ def getAttribute(vec):
         my_type=tmp.group(0)
         vec[-1]=re.subn(r'%s'%my_type,'',vec[-1])[0]
     return [vec,color,brand,my_type]
+
+def outputPolishedThing(ths):
+    import re
+    for th in ths:
+        if(len(th)==0): #如果是空的就跳过
+            continue
+        
+        val=getValue(th) #获取价值信息
+        
+        tmp=''#去掉括号内的内容
+        state=0
+        for ch in th:
+            if(ch=='(' or ch=='（'):
+                state=1
+            elif(ch==')' or ch=='）'):
+                state=0
+            elif(state==0):
+                tmp+=ch
+        th=tmp
+        
+        vec=re.split(r'的',th) #按照的拆分出定语，这里默认物品在最后一个部分
+        
+        n=len(vec)#下面搜索有关价值的定语，如果单独作为一个定语，就去掉，如果是某个定语的一部分，则只删除关于价值的文字
+        for i in range(n):#并删除“等物品”之类的后缀
+            j=n-1-i
+            tmp=re.search(r'(?:鉴定价格?|购买价|咨询价|进货价|售价|面值|面额|价值|折值|约值|总值|共值|估值|估价|价格|总价|总计|值)为?(?:人民币)?(?P<Value>[0-9,，\.零一二三四五六七八九十百千万零一二三四五六七八九十百千万壹贰叁肆伍陆柒捌玖拾佰仟亿]+[多余]?元)',vec[j]);
+            if(tmp!=None):
+                if((len(vec[j])-len(tmp.group(0)))<3):
+                    vec.pop(j)
+                    continue
+                else:
+                    vec[j]=re.subn(r'%s'%tmp.group(0),'',vec[j])[0]
+            tmp=re.search(r'等(?:物品|赃物|财物|钱财|物)?',vec[j])
+            if(tmp!=None):
+                vec[j]=re.subn(r'%s'%tmp.group(0),'',vec[j])[0]
+        
+        if(len(vec)==0 or vec[-1]==''):
+            continue
+        
+        #量词抽取
+        tmp=re.findall(r'(?:大?约|共计?|总共|合计?|各)?(?:[0-9\.]+|[两零一二三四五六七八九十百千万]+)[余多]?公?[套付对组部只个包辆袋件块枚捆瓶箱斤条Kk根米盒张吨副升位匹头颗棵片株粒朵份把顶架支幅道面发门台]',vec[-1])
+        if('零部' in tmp):
+            tmp.remove('零部')
+        amount=None
+        if(len(tmp)!=0):
+            amount=tmp[0]
+            amount=re.subn(r'各','',amount)[0]
+            for am in tmp:
+                vec[-1]=re.subn(r'%s'%am,'',vec[-1])[0]
+        
+        #颜色、品牌、型号等属性的抽取
+        [vec,color,brand,my_type]=getAttribute(vec)
+        
+        #如果是物品是现金
+        tmp=re.search('(?P<Cash>[0-9，,\.零一二三四五六七八九十百千万壹贰叁肆伍陆柒捌玖拾佰仟亿]+[余多]?美?元)',vec[-1])
+        if(tmp):
+            tmp=tmp.group('Cash')
+            vec=[tmp]
+
+        #如果物品开头是被害人李某某之类的，前整个物品的长度和被害人信息长度相近，则认为是错误信息
+        tmp=re.match('(?:被害人)?\w{1,2}[某甲乙丙]{1,3}',vec[-1])
+        if(tmp):
+            tmp=tmp.group(0)
+            if(len(vec[-1])-len(tmp)<3):
+                vec=[]
+        if(len(vec)==0 or vec[-1]==''):
+            continue
+        
+        #XXXX内，一般认为是定语，抽取出来，插入到定语中
+        n=len(vec)
+        tmp=re.match('.*?内',vec[-1])
+        if(tmp):
+            tmp=tmp.group(0)
+            vec[-1]=re.subn(r'%s'%tmp,'',vec[-1])[0]
+            vec.insert(n-1,tmp)
+            n+=1
+            
+        #在前面的定语中寻找颜色
+        '''
+        if(color==None):
+            n=len(vec)
+            for i in range(n-1):
+                tmp=re.match(r'\w{1,2}色',vec[i])
+                if tmp:
+                    color=tmp.group(0)
+                    print('color hhhhh\t'+vec[i]+'\t'+color)
+                    vec.pop(i)
+                    break
+        if(brand==None):
+            n=len(vec)
+            for i in range(n-1):
+                tmp=re.search(r'(?=款|型号?|色|[（）\(\)\"“”\'‘’、\-＊－·—\./]|\b)[\w（）\(\)\"“”\'‘’、\-＊－·—\./]+牌',vec[i])
+                if tmp:
+                    brand=tmp.group(0)
+                    print('brand hhhhh\t'+vec[i]+'\t'+brand)
+                    vec[i]=re.subn(r'%s'%brand,'',vec[i])[0]
+                    if(vec[i]==""):
+                        vec.pop(i)
+                    break
+            
+        if(my_type==None):
+            n=len(vec)
+            for i in range(n-1):
+                tmp=re.search(r'(?=牌|色|[（）\(\)\"“”\'‘’、\-＊－·—\./]|\b)[\w（）\(\)\"“”\'‘’、\-＊－·—\./]+(?:型号?|款)',vec[i])
+                if tmp:
+                    my_type=tmp.group(0)
+                    print('type hhhhh\t'+vec[i]+'\t'+my_type)
+                    vec[i]=re.subn(r'%s'%my_type,'',vec[i])[0]
+                    if(vec[i]==""):
+                        vec.pop(i)
+                    break
+                
+        if(amount==None):
+            n=len(vec)
+            for i in range(n-1):
+                tmp=re.search(r'(?:大?约|共计?|总共|合计?|各)?(?:[0-9\.]+|[两零一二三四五六七八九十百千万]+)[余多]?公?[套付对组部只个包辆袋件块枚捆瓶箱斤条Kk根米盒张吨副升位匹头颗棵片株粒朵份把顶架支幅道面发门台]',vec[i])
+                if tmp:
+                    amount=tmp.group(0)
+                    print('amount hhhhh\t'+vec[i]+'\t'+amount)
+                    vec[i]=re.subn(r'%s'%amount,'',vec[i])[0]
+                    if(vec[i]==""):
+                        vec.pop(i)
+                    break
+        '''
+        n=len(vec)
+        print("Item")
+        if(n>1):
+            print('\tModifier:',end="")
+            for i in range(n-1):
+                print('\t'+vec[i]+'的',end="")
+            print("")
+        if(color!=None):
+            print('\tColor:',end="")
+            print('\t'+color)
+        if(brand!=None):
+            print('\tBrand:',end="")
+            print('\t'+brand)
+        if(my_type!=None):
+            print('\tType:',end="")
+            print('\t'+my_type)
+        print('\tName:\t'+vec[-1])
+        if(amount!=None):
+            print('\tAmount:',end="")
+            print('\t'+amount)
+        if(val!=None):
+            print('\tValue:',end="")
+            print('\t'+val)
