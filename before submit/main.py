@@ -10,7 +10,7 @@ if __name__=='__main__':
     import sys
     import myFunction
     old=sys.stdout
-    f=open("tmp.txt","r",encoding='utf8')
+    f=open("0.txt","r",encoding='utf8')
     outf=open("out.txt","w",encoding="utf8")
     sys.stdout=outf
     files=f.read()

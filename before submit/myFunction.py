@@ -223,8 +223,6 @@ def extractInformation(text,code,nn): #统筹抽取信息的函数，为了更�
         things=[]
         for th in cp:
             things.extend(partThing.partThing(th))
-        if things.count(""):
-            things.remove("")
         partThing.outputPolishedThing(things)
         
         cp=money.copy()
