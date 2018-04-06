@@ -261,6 +261,7 @@ if __name__=='__main__':
     import sys
     import timeProcess
     import partThing
+    import myFunction
     debug=0 #是否为debug模式
     old=sys.stdout
     if debug!=1:
@@ -272,7 +273,7 @@ if __name__=='__main__':
     files=f.read()
     f.close()
     files=re.split(r'(?<=\n)\*{5}(?!\*)',files);#分割不同的文书
-    n=len(files)
+    n=len(files)#一共有n个文书
     
     i=0
     file_count=0
@@ -282,61 +283,14 @@ if __name__=='__main__':
         if re.match(r'^[\s]*$',file):
             continue#如果整篇文章是空的
         file_count=file_count+1
-        i=i+1#不同判决书之间的分割线
+        i=i+1
         
-        info=re.findall('被告人?\S*\n',file);
-        if len(info)==0:
-            error_count=error_count+1
+        [flag,s1,s2,s3,s4,s5,s6]=myFunction.divideText(file)
+        if flag==1:
+            error_count+=1
             continue
-        
-        p1=file.find(info[0])
-        s1=file[0:p1]
-        s2=file[p1:len(file)]
-        
-        info=re.findall('(?<=[\n])[\S]*?检\S{1,15}?诉\S*\n',s2);
-        if len(info)!=0:
-            p2=s2.find(info[0])+len(info[0])
-            s3=s2[p2:len(s2)]
-            s2=s2[0:p2]
-        else:
-            info=re.findall('(?<=\n)\S*?指控\S*\n',s2)
-            if len(info)==0:
-                error_count=error_count+1
-                continue
-            p2=s2.find(info[0])
-            s3=s2[p2:len(s2)]
-            s2=s2[0:p2]
-        
-        info=re.findall(r'(?<=\n)\S*查明\.*',s3)
-        if len(info)==0:
-            info=re.findall(r'(?<=\n)\S*证据\S*\n',s3)
-        if len(info)==0:
-            info=re.findall(r'(?<=\n)\S*认定\S*\n',s3)
-        if len(info)==0:
-            info=re.findall(r'(?<=\n)\S*证实\S*\n',s3)
-        if len(info)==0:
-            error_count=error_count+1
-            continue
-        p3=s3.find(info[0])
-        s4=s3[p3:len(s3)]
-        s3=s3[0:p3]
-        
-        info=re.findall(r'(?<=\n)\S*判决如下\S*\n',s4)
-        if len(info)==0:
-            error_count=error_count+1
-            continue
-        p4=s4.find(info[0])
-        s5=s4[p4:len(s4)]
-        s4=s4[0:p4]
-        
-        info=re.findall(r'[正副]本\S{0,20}\n',s5);
-        if len(info)==0:
-            error_count=error_count+1
-            continue
-        p5=s5.find(info[0])+len(info[0])
-        s6=s5[p5:len(s5)]
-        s5=s5[0:p5]    
 
+        #裁判文书识别码
         code=re.search(r'[0-9A-Z\-]{36}',s1)
         code=code.group(0)
         
