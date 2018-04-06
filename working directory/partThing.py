@@ -156,7 +156,7 @@ def outputPolishedThing(ths):
             continue
         
         #量词抽取
-        tmp=re.findall(r'(?:大?约|共计?|总共|合计?|各)?(?:[0-9\.]+|[两零一二三四五六七八九十百千万]+)[余多]?公?[套付对组部只个包辆袋件块枚捆瓶箱斤条Kk根米盒张吨副升位匹头颗棵片株粒朵份把顶架支幅道面发门台]',vec[-1])
+        tmp=re.findall(r'(?:大?约|共计?|总共|合计?|各)?(?:[0-9\.]+|[两零一二三四五六七八九十百千万]+)[余多]?公?[桶套付对组部只个包辆袋件块枚捆瓶箱斤条Kk根米盒张吨副升位匹头颗棵片株粒朵份把顶架支幅道面发门台]',vec[-1])
         if('零部' in tmp):
             tmp.remove('零部')
         amount=None
@@ -165,6 +165,16 @@ def outputPolishedThing(ths):
             amount=re.subn(r'各','',amount)[0]
             for am in tmp:
                 vec[-1]=re.subn(r'%s'%am,'',vec[-1])[0]
+                
+
+        #XXXX内，一般认为是定语，抽取出来，插入到定语中
+        n=len(vec)
+        tmp=re.match('.*?内',vec[-1])
+        if(tmp):
+            tmp=tmp.group(0)
+            vec[-1]=re.subn(r'%s'%tmp,'',vec[-1])[0]
+            vec.insert(n-1,tmp)
+            n+=1
         
         #颜色、品牌、型号等属性的抽取
         [vec,color,brand,my_type]=getAttribute(vec)
@@ -184,14 +194,6 @@ def outputPolishedThing(ths):
         if(len(vec)==0 or vec[-1]==''):
             continue
         
-        #XXXX内，一般认为是定语，抽取出来，插入到定语中
-        n=len(vec)
-        tmp=re.match('.*?内',vec[-1])
-        if(tmp):
-            tmp=tmp.group(0)
-            vec[-1]=re.subn(r'%s'%tmp,'',vec[-1])[0]
-            vec.insert(n-1,tmp)
-            n+=1
             
         #在前面的定语中寻找颜色
         '''

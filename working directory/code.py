@@ -7,26 +7,18 @@ Created on Tue Mar 20 18:00:44 2018
 
 debug=1 #debug模式
 nn=[] #从头部信息抽取出来的被告人姓名列表
-#datetime=[]
-ths=[]
-ins_count=0
-check_time_count=0
-money_list=[]
 
-def printList(List): #打印列表的函数
+def printList(List): #打印列表的函数,元素与元素之间用制表符分隔
     for item in List:
             print('\t'+item,end='')
     print('')
-    
 
 def extractInformation(text,code): #抽取信息的函数
     flag=-1
     lines=text.split('\n')
-    #exist_time=set()
     preYear=''
     preMonth=''
     preDay=''
-    global check_time_count
     code_already=False
     for line in lines:
         time=None
@@ -39,11 +31,10 @@ def extractInformation(text,code): #抽取信息的函数
         
         #不带中文数字版
         #time=re.search(r'(?P<Year>[0-9]{4,4}|同|当)年(?P<Imprecise_month>[末底终初中])?(?:(?P<Season>[春夏秋冬])[天季])?(?P<Month>[0-9]{1,2}|同|当)月份?(?P<Mo>左右)?(?P<Imprecise_day>(?P<Id1>上旬|中旬|下旬|[末底终初中])?(?P<Id2>的一天|一天)?)?(?:(?P<Day>(?:[0-9]{1,2}|同|当|某))[日号](?P<D1>左右|前后)?(?P<D2>的?一天)?)?(?P<Imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<Hour>[0-9]{1,2}|某)(?:时|点钟?)(?P<H>左右|前后|许)?)?(?:(?P<Minute>[0-9]{1,2}|某)分(?P<Mi>左右|前后|许)?)?(?:(?P<Second>[0-9]{1,2}|某)秒(?P<S>左右|前后|许)?)?\b',line)
-        #带中文数字版
         check_time=re.search(r'\w*年\w*月\w*至\w*[年月日]\w*[月日]?\w*日?',line)
         if(check_time!=None):
-            check_time_count+=1
             continue
+        #带中文数字版
         time=re.search(r'(?P<Year>[0-9零一二三四五六七八九]{4,4}|同|当)年(?P<Imprecise_month>[末底终初中])?(?:(?P<Season>[春夏秋冬])[天季])?(?P<Month>[0-9零一二三四五六七八九]{1,2}|同|当)月份?(?P<Mo>左右)?(?P<Imprecise_day>(?P<Id1>上旬|中旬|下旬|[末底终初中])?(?P<Id2>的一天|一天)?)?(?:(?P<Day>(?:[0-9零一二三四五六七八九]{1,2}|同|当|某))[日号](?P<D1>左右|前后)?(?P<D2>的?一天)?)?(?P<Imprecise_hour>凌晨|早晨|早上|晚上|傍晚|上午|中午|下午|深夜|半夜|夜间|夜晚|夜里|夜|早|中|晚)?(?:(?P<Hour>[0-9零一二三四五六七八九]{1,2}|某)(?:时|点钟?)(?P<H>左右|前后|许)?)?(?:(?P<Minute>[0-9零一二三四五六七八九]{1,2}|某)分(?P<Mi>左右|前后|许)?)?(?:(?P<Second>[0-9零一二三四五六七八九]{1,2}|某)秒(?P<S>左右|前后|许)?)?\b',line)
 
         if time==None:
@@ -182,9 +173,6 @@ def extractInformation(text,code): #抽取信息的函数
         print('################')
         print("Time")
         [preYear,preMonth,preDay]=timeProcess.structTime(time,preYear,preMonth,preDay)
-        #datetime.append(time)  #datetime存储时间
-        
-        global ins_count
         
         cp=names.copy()
         for name in cp:
@@ -202,7 +190,6 @@ def extractInformation(text,code): #抽取信息的函数
                 if ok==False:
                     break
             if ok==False:
-                ins_count+=1
                 names.remove(cp[i])
         print("Criminal\n",end="")
         printList(names)
@@ -246,7 +233,6 @@ def extractInformation(text,code): #抽取信息的函数
         for th in cp:
             things.extend(partThing.partThing(th))
         partThing.outputPolishedThing(things)
-        ths.extend(things)
         
         cp=money.copy()
         for mm in cp:
@@ -275,7 +261,7 @@ if __name__=='__main__':
     import sys
     import timeProcess
     import partThing
-    debug=0
+    debug=0 #是否为debug模式
     old=sys.stdout
     if debug!=1:
         f=open("0.txt","r",encoding='utf8')
@@ -376,24 +362,20 @@ if __name__=='__main__':
             rec4=1
             flag=extractInformation(s4,code)
             if flag==1:
-                #print('**********************')
                 continue
         pt=s3.find('指控')
         if pt!=-1:
             rec3=1
             flag=extractInformation(s3,code)
             if flag==1:
-                #print('**********************')
                 continue
         if rec3==0:
             flag=extractInformation(s3,code)
             if flag==1:
-                #print('**********************')
                 continue
         if rec4==0:
             flag=extractInformation(s4,code)
             if flag==1:
-                #print('**********************')
                 continue
         not_count=not_count+1
     
@@ -401,104 +383,6 @@ if __name__=='__main__':
     print("\n文书总数：",file_count)
     print("\n未识别裁判文书数: ",error_count)
     print("\n提取失败文书数：",not_count)
-    print("\nins_count：",ins_count)#被告人姓名清理的数量
-    print("\ncheck_time_count：",check_time_count)
     
-    df=open('ths.txt','w',encoding='utf8')
-    
-    #'''
-    for th in ths:
-        if(len(th)==0): #如果是空的就跳过
-            continue
-        
-        val=partThing.getValue(th) #获取价值信息
-        
-        tmp=''#去掉括号内的内容
-        state=0
-        for ch in th:
-            if(ch=='(' or ch=='（'):
-                state=1
-            elif(ch==')' or ch=='）'):
-                state=0
-            elif(state==0):
-                tmp+=ch
-        th=tmp
-        
-        vec=re.split(r'的',th) #按照的拆分出定语，这里默认物品在最后一个部分
-        
-        n=len(vec)#下面搜索有关价值的定语，如果单独作为一个定语，就去掉，如果是某个定语的一部分，则只删除关于价值的文字
-        for i in range(n):#并删除“等物品”之类的后缀
-            j=n-1-i
-            tmp=re.search(r'(?:鉴定价格?|购买价|咨询价|进货价|售价|面值|面额|价值|折值|约值|总值|共值|估值|估价|价格|总价|总计|值)为?(?:人民币)?(?P<Value>[0-9,，\.零一二三四五六七八九十百千万零一二三四五六七八九十百千万壹贰叁肆伍陆柒捌玖拾佰仟亿]+[多余]?元)',vec[j]);
-            if(tmp!=None):
-                if((len(vec[j])-len(tmp.group(0)))<3):
-                    vec.pop(j)
-                    continue
-                else:
-                    vec[j]=re.subn(r'%s'%tmp.group(0),'',vec[j])[0]
-            tmp=re.search(r'等(?:物品|赃物|财物|钱财|物)?',vec[j])
-            if(tmp!=None):
-                vec[j]=re.subn(r'%s'%tmp.group(0),'',vec[j])[0]
-        
-        if(len(vec)==0 or vec[-1]==''):
-            continue
-        
-        #量词抽取
-        tmp=re.findall(r'(?:大?约|共计?|总共|合计?|各)?(?:[0-9\.]+|[两零一二三四五六七八九十百千万]+)[余多]?公?[套付对组部只个包辆袋件块枚捆瓶箱斤条Kk根米盒张吨副升位匹头颗棵片株粒朵份把顶架支幅道面发门台]',vec[-1])
-        if('零部' in tmp):
-            tmp.remove('零部')
-        amount=None
-        if(len(tmp)!=0):
-            amount=tmp[0]
-            amount=re.subn(r'各','',amount)[0]
-            for am in tmp:
-                vec[-1]=re.subn(r'%s'%am,'',vec[-1])[0]
-        
-        #颜色、品牌、型号等属性的抽取
-        [vec,color,brand,my_type]=partThing.getAttribute(vec)
-        
-        #如果是物品是现金
-        tmp=re.search('(?P<Cash>[0-9，,\.零一二三四五六七八九十百千万壹贰叁肆伍陆柒捌玖拾佰仟亿]+[余多]?美?元)',vec[-1])
-        if(tmp):
-            tmp=tmp.group('Cash')
-            vec=[tmp]
-
-        #如果物品开头是被害人李某某之类的，前整个物品的长度和被害人信息长度相近，则认为是错误信息
-        tmp=re.match('(?:被害人)?\w{1,2}[某甲乙丙]{1,3}',vec[-1])
-        if(tmp):
-            tmp=tmp.group(0)
-            if(len(vec[-1])-len(tmp)<3):
-                vec=[]
-        if(len(vec)==0 or vec[-1]==''):
-            continue
-        
-        #XXXX内，一般认为是定语，抽取出来，插入到定语中
-        n=len(vec)
-        tmp=re.match('.*?内',vec[-1])
-        if(tmp):
-            tmp=tmp.group(0)
-            vec[-1]=re.subn(r'%s'%tmp,'',vec[-1])[0]
-            vec.insert(n-1,tmp)
-            n+=1
-        
-        for i in range(n-1):
-            df.write('--'+vec[i]+'的\t')
-        if(color!=None):
-            df.write('--'+color+'\t')
-        if(brand!=None):
-            df.write('--'+brand+'\t')
-        if(my_type!=None):
-            df.write('--'+my_type+'\t')
-        df.write('**'+vec[-1]+'\t')
-        if(amount!=None):
-            df.write('--'+amount+'\t')
-        if(val!=None):
-            df.write('--价值为'+val+'\t')
-        df.write('\n')
-    df.close()
-    #'''
-    
-    for tmp in money_list:
-        print(tmp)
     sys.stdout=old
     outf.close()
