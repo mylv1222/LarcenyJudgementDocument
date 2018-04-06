@@ -4,8 +4,10 @@ Created on Tue Mar 27 12:30:10 2018
 
 @author: MilesGO
 """
-import re
 
+#提取结构化时间
+
+import re
 
 cYear=''
 cMonth=''

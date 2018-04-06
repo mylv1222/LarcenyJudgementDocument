@@ -10,8 +10,7 @@ Created on Wed Apr  4 21:23:27 2018
 def isnum(ch):
     return ord(ch)>=ord('0') and ord(ch)<=ord('9')
 
-#其实括号问题最准确的做法是用栈（但是这样直接用一个state应该不会有太大的问题）
-def partThing(st):
+def partThing(st): #按照一些分隔词和标点分离出多个物品
     pats=set(['和','及','与','、','，',','])
     n=len(st)
     i=0
@@ -20,7 +19,7 @@ def partThing(st):
     res=[]
     while i<n:
         if(st[i]=='(' or st[i]=='（'):
-            state1=1
+            state1=1#其实括号问题最准确的做法是用栈（但是这样直接用一个state应该不会有太大的问题）
         elif(st[i]==')' or st[i]=='）'):
             state1=0
         elif(state2==0 and (st[i]=='\'' or st[i]=='‘' or st[i]=='"' or st[i]=='“')):
@@ -58,11 +57,6 @@ def partThing(st):
         res.append(st)
     return res
 
-class item:
-    def __init__(self):
-        self.value=''
-        self.name=''
-
 def getValue(th):
     import re
     tmp=re.search(r'(?:鉴定价格?|购买价|咨询价|进货价|售价|面值|面额|价值|折值|约值|总值|共值|估值|估价|价格|总价|总计|值)为?(?:人民币)?(?P<Value>[0-9,，\.零一二三四五六七八九十百千万零一二三四五六七八九十百千万壹贰叁肆伍陆柒捌玖拾佰仟亿]+[多余]?元)',th)
@@ -72,7 +66,7 @@ def getValue(th):
     #先找到价值，然后直接把括号去掉
     
 def delThing(things,names):
-    import re
+    import re#删除一些提取错误的情况
     cp=things.copy()
     for th in cp:
         if(len(th)<3):
@@ -92,7 +86,7 @@ def delThing(things,names):
                 things.remove(th)
                 break
             
-def getAttribute(vec):
+def getAttribute(vec):#提取物品的属性信息，例如颜色、品牌、型号等
     import re
     #color
     color=None
@@ -117,7 +111,7 @@ def getAttribute(vec):
         vec[-1]=re.subn(r'%s'%my_type,'',vec[-1])[0]
     return [vec,color,brand,my_type]
 
-def outputPolishedThing(ths):
+def outputPolishedThing(ths):#结构化程度更高的处理，并输出
     import re
     for th in ths:
         if(len(th)==0): #如果是空的就跳过
@@ -196,7 +190,7 @@ def outputPolishedThing(ths):
         
             
         #在前面的定语中寻找颜色
-        '''
+        '''#这样处理后，又会引发新的问题，所以暂时先注释掉了
         if(color==None):
             n=len(vec)
             for i in range(n-1):
